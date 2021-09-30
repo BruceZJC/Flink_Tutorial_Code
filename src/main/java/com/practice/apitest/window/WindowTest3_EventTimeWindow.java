@@ -27,13 +27,7 @@ public class WindowTest3_EventTimeWindow {
         DataStream<SensorReading> dataStream = inputStream.map(line -> {
             String[] fields = line.split(",");
             return new SensorReading(fields[0], Long.valueOf(fields[1]), Double.valueOf(fields[2]));
-        })
-                .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<SensorReading>() {
-                    @Override
-                    public long extractAscendingTimestamp(SensorReading element) {
-                        return 0;
-                    }
-                })
+        }) 
                 .assignTimestampsAndWatermarks(new MyWatermarkStrategy());
 
         env.execute();
