@@ -36,6 +36,7 @@ public class WindowTest2_CountWindow {
 
 
     }
+    //这里的 Tuple2 是中间状态
     public static class MyAvgTemp implements AggregateFunction<SensorReading, Tuple2<Double, Integer>,Double> {
 
         @Override

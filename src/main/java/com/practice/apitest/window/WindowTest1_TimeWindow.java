@@ -7,6 +7,7 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows;
@@ -17,6 +18,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.GlobalWindow;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
 public class WindowTest1_TimeWindow {
     public static void main(String[] args) throws Exception {
@@ -78,6 +80,17 @@ public class WindowTest1_TimeWindow {
                         out.collect(count);
                     }
                 });
+
+        // 3. 其他可选 API
+        SingleOutputStreamOperator<SensorReading> resultstream3 = dataStream.keyBy(SensorReading::getId).window(TumblingProcessingTimeWindows.of(Time.seconds(15)))
+//                        .trigger()
+//                        .evictor()
+                .allowedLateness(Time.seconds(30))
+                .sideOutputLateData(new OutputTag<SensorReading>("late"))
+                .sum("temperature");
+
+
+        resultstream3.getSideOutput(new OutputTag<SensorReading>("late")).print();
         resultStream.print();
         resultStream2.print();
         env.execute();
